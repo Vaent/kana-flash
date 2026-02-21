@@ -1,0 +1,145 @@
+package uk.vaent.kanaflash
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import uk.vaent.kanaflash.ui.theme.KanaFlashTheme
+
+@SuppressLint("TextConcatSpace")
+private const val HIRAGANA_SEION = "あいうえお" +
+        "かきくけこ" +
+        "さしすせそ" +
+        "たちつてと" +
+        "なにぬねの" +
+        "はひふへほ" +
+        "まみむめも" +
+        "や ゆ よ" +
+        "らりるれろ" +
+        "わゐ ゑを"
+private const val HIRAGANA_HATSUON = "ん"
+
+@SuppressLint("TextConcatSpace")
+private const val KATAKANA_SEION = "アイウエオ" +
+        "カキクケコ" +
+        "サシスセソ" +
+        "タチツテト" +
+        "ナニヌネノ" +
+        "ハヒフヘホ" +
+        "マミムメモ" +
+        "ヤ ユ ヨ" +
+        "ラリルレロ" +
+        "ワヰ ヱヲ"
+private const val KATAKANA_HATSUON = "ン"
+
+private val cellSize: Dp = 24.dp
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            MainApp()
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 480)
+@Composable
+fun GreetingPreview() {
+    MainApp()
+}
+
+@Composable
+fun MainApp(modifier: Modifier = Modifier) {
+    KanaFlashTheme {
+        Scaffold(modifier) { innerPadding ->
+            Surface(
+                modifier = Modifier.padding(innerPadding),
+                color = MaterialTheme.colorScheme.primary
+            ) {
+                Column {
+                    Row {
+                        Titles()
+                    }
+                    Row(Modifier.fillMaxHeight().padding(top = 10.dp)) {
+                        GojuonTable(HIRAGANA_SEION, HIRAGANA_HATSUON)
+                        GojuonTable(KATAKANA_SEION, KATAKANA_HATSUON)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Titles() {
+        Column(
+            Modifier.background(MaterialTheme.colorScheme.tertiary)
+                .fillMaxWidth()
+                .padding(vertical = 40.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            for (title in arrayOf("Kana Flash", "かなフラシ")) {
+                Text(
+                    title,
+                    Modifier.align(Alignment.CenterHorizontally)
+                        .padding(vertical = 12.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        }
+}
+
+@Composable
+private fun GojuonTable(seion: String, hatsuon: String) {
+    Column(Modifier.padding(horizontal = 20.dp)) {
+        Row(Modifier.align(Alignment.CenterHorizontally)) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(5),
+                Modifier.width(cellSize * 5)
+            ) {
+                items((seion).toList()) { kana ->
+                    GridCell(kana.toString())
+                }
+            }
+        }
+        Row(Modifier.align(Alignment.CenterHorizontally)) {
+            GridCell(hatsuon, 5)
+        }
+    }
+}
+
+@Composable
+private fun GridCell(kana: String, columns: Int = 1) {
+    Column(
+        Modifier.border(Dp.Hairline, Color(180, 180, 180))
+            .height(cellSize)
+            .width(cellSize * columns),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            kana,
+            Modifier.align(Alignment.CenterHorizontally),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
