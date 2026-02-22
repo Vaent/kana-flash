@@ -1,16 +1,19 @@
 package uk.vaent.kanaflash
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -22,33 +25,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import uk.vaent.kanaflash.kana.Hiragana
+import uk.vaent.kanaflash.kana.Kana
+import uk.vaent.kanaflash.kana.Katakana
+import uk.vaent.kanaflash.kana.Seion
 import uk.vaent.kanaflash.ui.theme.KanaFlashTheme
-
-@SuppressLint("TextConcatSpace")
-private const val HIRAGANA_SEION = "あいうえお" +
-        "かきくけこ" +
-        "さしすせそ" +
-        "たちつてと" +
-        "なにぬねの" +
-        "はひふへほ" +
-        "まみむめも" +
-        "や ゆ よ" +
-        "らりるれろ" +
-        "わゐ ゑを"
-private const val HIRAGANA_HATSUON = "ん"
-
-@SuppressLint("TextConcatSpace")
-private const val KATAKANA_SEION = "アイウエオ" +
-        "カキクケコ" +
-        "サシスセソ" +
-        "タチツテト" +
-        "ナニヌネノ" +
-        "ハヒフヘホ" +
-        "マミムメモ" +
-        "ヤ ユ ヨ" +
-        "ラリルレロ" +
-        "ワヰ ヱヲ"
-private const val KATAKANA_HATSUON = "ン"
 
 private val cellSize: Dp = 24.dp
 
@@ -81,8 +62,8 @@ fun MainApp(modifier: Modifier = Modifier) {
                         Titles()
                     }
                     Row(Modifier.fillMaxHeight().padding(top = 10.dp)) {
-                        GojuonTable(HIRAGANA_SEION, HIRAGANA_HATSUON)
-                        GojuonTable(KATAKANA_SEION, KATAKANA_HATSUON)
+                        GojuonTable(Hiragana)
+                        GojuonTable(Katakana)
                     }
                 }
             }
@@ -110,26 +91,23 @@ fun Titles() {
 }
 
 @Composable
-private fun GojuonTable(seion: String, hatsuon: String) {
+private fun GojuonTable(seion: Seion) {
     Column(Modifier.padding(horizontal = 20.dp)) {
-        Row(Modifier.align(Alignment.CenterHorizontally)) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(5),
-                Modifier.width(cellSize * 5)
-            ) {
-                items((seion).toList()) { kana ->
-                    GridCell(kana.toString())
+        seion.getAllGyo().forEach { gyo ->
+            Row(Modifier.align(Alignment.CenterHorizontally)) {
+                gyo.getAllKana().forEach { kana ->
+                    GridCell(kana)
                 }
             }
         }
         Row(Modifier.align(Alignment.CenterHorizontally)) {
-            GridCell(hatsuon, 5)
+            GridCell(seion.hatsuon, 5)
         }
     }
 }
 
 @Composable
-private fun GridCell(kana: String, columns: Int = 1) {
+private fun GridCell(kana: Kana, columns: Int = 1) {
     Column(
         Modifier.border(Dp.Hairline, Color(180, 180, 180))
             .height(cellSize)
@@ -137,7 +115,7 @@ private fun GridCell(kana: String, columns: Int = 1) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            kana,
+            kana.value,
             Modifier.align(Alignment.CenterHorizontally),
             style = MaterialTheme.typography.bodySmall
         )
