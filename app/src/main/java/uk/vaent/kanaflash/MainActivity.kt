@@ -9,11 +9,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -31,7 +33,7 @@ import uk.vaent.kanaflash.kana.Katakana
 import uk.vaent.kanaflash.kana.Seion
 import uk.vaent.kanaflash.ui.theme.KanaFlashTheme
 
-private val cellSize: Dp = 24.dp
+private val cellSize: Dp = 36.dp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +45,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 480)
+// For initial development (personal use) only "SD vertical" resolution is targeted.
+// Support for other layouts/screen sizes is needed if this app will be shared publicly.
+@Preview(name="Small", showBackground = true, widthDp = 320, heightDp = 480)
+@Preview(name="SD", showBackground = true, widthDp = 480, heightDp = 720)
+@Preview(name="FHD", showBackground = true, widthDp = 1080, heightDp = 1920)
 @Composable
-fun GreetingPreview() {
+fun VerticalPreview() {
     MainApp()
 }
 
@@ -61,8 +67,12 @@ fun MainApp(modifier: Modifier = Modifier) {
                     Row {
                         Titles()
                     }
-                    Row(Modifier.fillMaxHeight().padding(top = 10.dp)) {
+                    Row(
+                        Modifier.fillMaxSize()
+                            .wrapContentSize(Alignment.Center)
+                    ) {
                         GojuonTable(Hiragana)
+                        Spacer(modifier = Modifier.width(10.dp))
                         GojuonTable(Katakana)
                     }
                 }
@@ -92,7 +102,7 @@ fun Titles() {
 
 @Composable
 private fun GojuonTable(seion: Seion) {
-    Column(Modifier.padding(horizontal = 20.dp)) {
+    Column(Modifier.padding(all = cellSize / 2)) {
         seion.getAllGyo().forEach { gyo ->
             Row(Modifier.align(Alignment.CenterHorizontally)) {
                 gyo.getAllKana().forEach { kana ->
@@ -117,7 +127,8 @@ private fun GridCell(kana: Kana, columns: Int = 1) {
         Text(
             kana.value,
             Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.bodySmall
+//            style = MaterialTheme.typography.bodyLarge,
+//            fontSize = 6.em
         )
     }
 }
