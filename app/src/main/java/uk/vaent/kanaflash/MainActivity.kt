@@ -16,22 +16,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import uk.vaent.kanaflash.kana.Hiragana
 import uk.vaent.kanaflash.kana.Kana
 import uk.vaent.kanaflash.kana.Katakana
 import uk.vaent.kanaflash.kana.Seion
 import uk.vaent.kanaflash.ui.theme.KanaFlashTheme
+import kotlin.random.Random
 
 private val cellSize: Dp = 36.dp
 
@@ -58,22 +65,43 @@ fun VerticalPreview() {
 @Composable
 fun MainApp(modifier: Modifier = Modifier) {
     KanaFlashTheme {
-        Scaffold(modifier) { innerPadding ->
+//        Scaffold(modifier) { innerPadding ->
             Surface(
-                modifier = Modifier.padding(innerPadding),
+//                modifier = Modifier.padding(innerPadding),
                 color = MaterialTheme.colorScheme.primary
             ) {
-                Column {
-                    Row {
-                        Titles()
+                KanaFlashTitleScreen()
+            }
+//        }
+    }
+}
+
+@Composable
+private fun KanaFlashTitleScreen() {
+    Column {
+        Row {
+            Titles()
+        }
+        Row(
+            Modifier
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+        ) {
+            var selectedSet: Seion? by remember { mutableStateOf(null) }
+            if (selectedSet == null) {
+                GojuonTables { seion: Seion -> selectedSet = seion }
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (Random.nextInt(50) == 0) {
+                        Text(selectedSet!!.hatsuon.value, fontSize = 120.em)
+                    } else {
+                        val gyo = selectedSet!!.getAllGyo()[Random.nextInt(10)]
+                        var kana = gyo.getAllKana()[Random.nextInt(5)]
+                        while (kana.value == " ") kana = gyo.getAllKana()[Random.nextInt(5)]
+                        Text(kana.value, fontSize = 60.em)
                     }
-                    Row(
-                        Modifier.fillMaxSize()
-                            .wrapContentSize(Alignment.Center)
-                    ) {
-                        GojuonTable(Hiragana)
-                        Spacer(modifier = Modifier.width(10.dp))
-                        GojuonTable(Katakana)
+                    Button(onClick = { selectedSet = null }) {
+                        Text("Reset")
                     }
                 }
             }
@@ -84,7 +112,8 @@ fun MainApp(modifier: Modifier = Modifier) {
 @Composable
 fun Titles() {
         Column(
-            Modifier.background(MaterialTheme.colorScheme.tertiary)
+            Modifier
+                .background(MaterialTheme.colorScheme.tertiary)
                 .fillMaxWidth()
                 .padding(vertical = 40.dp),
             verticalArrangement = Arrangement.Center
@@ -92,7 +121,8 @@ fun Titles() {
             for (title in arrayOf("Kana Flash", "かなフラシ")) {
                 Text(
                     title,
-                    Modifier.align(Alignment.CenterHorizontally)
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
                         .padding(vertical = 12.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -101,8 +131,31 @@ fun Titles() {
 }
 
 @Composable
+private fun GojuonTables(clickHandler: (Seion) -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Button(
+            modifier = Modifier.border(Dp.Hairline, Color.White),
+            onClick = { clickHandler(Hiragana) }
+        ) {
+            Text("Hiragana")
+        }
+        GojuonTable(Hiragana)
+    }
+    Spacer(modifier = Modifier.width(10.dp))
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Button(
+            modifier = Modifier.border(Dp.Hairline, Color.White),
+            onClick = { clickHandler(Katakana) }
+        ) {
+            Text("Katakana")
+        }
+        GojuonTable(Katakana)
+    }
+}
+
+@Composable
 private fun GojuonTable(seion: Seion) {
-    Column(Modifier.padding(all = cellSize / 2)) {
+    Column(Modifier.padding(vertical = cellSize / 2)) {
         seion.getAllGyo().forEach { gyo ->
             Row(Modifier.align(Alignment.CenterHorizontally)) {
                 gyo.getAllKana().forEach { kana ->
@@ -119,7 +172,8 @@ private fun GojuonTable(seion: Seion) {
 @Composable
 private fun GridCell(kana: Kana, columns: Int = 1) {
     Column(
-        Modifier.border(Dp.Hairline, Color(180, 180, 180))
+        Modifier
+            .border(Dp.Hairline, Color(180, 180, 180))
             .height(cellSize)
             .width(cellSize * columns),
         verticalArrangement = Arrangement.Center,
