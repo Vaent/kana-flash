@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +23,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import uk.vaent.kanaflash.kana.Hiragana
@@ -30,7 +33,6 @@ import uk.vaent.kanaflash.kana.Katakana
 import uk.vaent.kanaflash.kana.Seion
 import uk.vaent.kanaflash.layout.GojuonTableWithButton
 import uk.vaent.kanaflash.ui.theme.KanaFlashTheme
-import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,20 +80,31 @@ private fun KanaFlashTitleScreen() {
             if (selectedSet == null) {
                 GojuonTables { seion: Seion -> selectedSet = seion }
             } else {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    if (Random.nextInt(50) == 0) {
-                        Text(selectedSet!!.hatsuon.value, fontSize = 120.em)
-                    } else {
-                        val gyo = selectedSet!!.getAllGyo()[Random.nextInt(10)]
-                        var kana = gyo.getAllKana()[Random.nextInt(5)]
-                        while (kana.value == " ") kana = gyo.getAllKana()[Random.nextInt(5)]
-                        Text(kana.value, fontSize = 60.em)
-                    }
-                    Button(onClick = { selectedSet = null }) {
-                        Text("Reset")
-                    }
-                }
+                KanaFlashCard(selectedSet!!) { selectedSet = null }
             }
+        }
+    }
+}
+
+@Composable
+private fun KanaFlashCard(selectedSet: Seion, resetFunction: () -> Unit) {
+    val candidateKana = selectedSet.getAllKana()
+    var currentKana by remember { mutableStateOf(candidateKana.random()) }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(currentKana.value, fontSize = 60.em)
+        Button(
+            modifier = Modifier.border(Dp.Hairline, Color.White),
+            onClick = { currentKana = candidateKana.random() }
+        ) {
+            Text("Show another ${selectedSet.javaClass.simpleName.lowercase()}")
+        }
+        Button(
+            modifier = Modifier.border(Dp.Hairline, Color.White),
+            onClick = resetFunction
+        ) {
+            Text("Back to gojuon tables")
         }
     }
 }

@@ -1,5 +1,7 @@
 package uk.vaent.kanaflash.kana
 
+import java.util.Arrays.stream
+
 interface Seion {
     val boon: Gyo
     val kaGyo: Gyo
@@ -15,6 +17,13 @@ interface Seion {
 
     fun getAllGyo(): List<Gyo> {
         return listOf(boon, kaGyo, saGyo, taGyo, naGyo, haGyo, maGyo, yaGyo, raGyo, waGyo)
+    }
+
+    fun getAllKana(): List<Kana> {
+        return arrayOf(boon, kaGyo, saGyo, taGyo, naGyo, haGyo, maGyo, yaGyo, raGyo, waGyo)
+            .flatMap(Gyo::getAllKana)
+            .filter { kana -> kana.value != " " }
+            .plus(hatsuon)
     }
 }
 
