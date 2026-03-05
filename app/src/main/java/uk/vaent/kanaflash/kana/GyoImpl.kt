@@ -19,18 +19,18 @@ class GyoImpl : Gyo {
     }
 
     override val aDan: Kana
-    override val iDan: Kana
-    override val uDan: Kana
-    override val eDan: Kana
+    override val iDan: Kana?
+    override val uDan: Kana?
+    override val eDan: Kana?
     override val oDan: Kana
     
-    constructor(aDan: Char, iDan: Char, uDan: Char, eDan: Char, oDan: Char) {
+    constructor(aDan: Char, iDan: Char?, uDan: Char?, eDan: Char?, oDan: Char) {
         this.aDan = KanaImpl(aDan)
-        this.iDan = KanaImpl(iDan)
-        this.uDan = KanaImpl(uDan)
-        this.eDan = KanaImpl(eDan)
+        this.iDan = if (iDan == null || iDan.isWhitespace()) null else KanaImpl(iDan)
+        this.uDan = if (uDan == null || uDan.isWhitespace()) null else KanaImpl(uDan)
+        this.eDan = if (eDan == null || eDan.isWhitespace()) null else KanaImpl(eDan)
         this.oDan = KanaImpl(oDan)
     }
     
-    override fun getAllKana(): List<Kana> = listOf(aDan, iDan, uDan, eDan, oDan)
+    override fun getAllKana(): List<Kana?> = listOf(aDan, iDan, uDan, eDan, oDan)
 }

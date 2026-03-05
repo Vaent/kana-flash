@@ -52,7 +52,7 @@ fun GojuonTable(seion: Seion) {
 }
 
 @Composable
-private fun GridCell(kana: Kana, columns: Int = 1) {
+private fun GridCell(kana: Kana?, columns: Int = 1) {
     Column(
         Modifier
             .border(Dp.Hairline, Color(180, 180, 180))
@@ -60,9 +60,11 @@ private fun GridCell(kana: Kana, columns: Int = 1) {
             .width(cellSize * columns),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            kana.value,
-            Modifier.align(Alignment.CenterHorizontally)
-        )
+        if (kana != null) {
+            Text(
+                kana.value,
+                Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
     }
 }

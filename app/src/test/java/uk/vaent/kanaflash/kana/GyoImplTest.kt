@@ -3,16 +3,39 @@ package uk.vaent.kanaflash.kana
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class GyoImplTest {
+    @Test
+    fun permitsNullChildrenInCertainPositions() {
+        val gyo = GyoImpl('a', null, null, null, 'o')
+
+        assertEquals("a", gyo.aDan.value)
+        assertNull(gyo.iDan)
+        assertNull(gyo.uDan)
+        assertNull(gyo.eDan)
+        assertEquals("o", gyo.oDan.value)
+    }
+
     @Test
     fun createsGyoFromCharactersOfSuppliedString() {
         val gyo = GyoImpl.from("xy1ab")
         assertEquals("x", gyo.aDan.value)
-        assertEquals("y", gyo.iDan.value)
-        assertEquals("1", gyo.uDan.value)
-        assertEquals("a", gyo.eDan.value)
+        assertEquals("y", gyo.iDan?.value)
+        assertEquals("1", gyo.uDan?.value)
+        assertEquals("a", gyo.eDan?.value)
         assertEquals("b", gyo.oDan.value)
+    }
+
+    @Test
+    fun convertsSpacesInInputToNull() {
+        val gyo = GyoImpl.from("a   o")
+
+        assertEquals("a", gyo.aDan.value)
+        assertNull(gyo.iDan)
+        assertNull(gyo.uDan)
+        assertNull(gyo.eDan)
+        assertEquals("o", gyo.oDan.value)
     }
 
     @Test
