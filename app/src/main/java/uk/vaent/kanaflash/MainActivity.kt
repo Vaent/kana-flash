@@ -17,21 +17,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import uk.vaent.kanaflash.kana.Hiragana
 import uk.vaent.kanaflash.kana.Katakana
-import uk.vaent.kanaflash.kana.Seion
-import uk.vaent.kanaflash.layout.GojuonTableWithButton
+import uk.vaent.kanaflash.layout.GojuonTable
 import uk.vaent.kanaflash.ui.theme.KanaFlashTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,57 +50,53 @@ fun VerticalPreview() {
     MainApp()
 }
 
+enum class View {
+    HOME,
+    FLASH_CARDS
+}
+
 @Composable
 fun MainApp(modifier: Modifier = Modifier) {
+    val (view, setView) = remember { mutableStateOf(View.HOME) }
     KanaFlashTheme {
         Surface(
             color = MaterialTheme.colorScheme.primary
         ) {
-            KanaFlashTitleScreen()
-        }
-    }
-}
-
-@Composable
-private fun KanaFlashTitleScreen() {
-    Column {
-        Row {
-            Titles()
-        }
-        Row(
-            Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            var selectedSet: Seion? by remember { mutableStateOf(null) }
-            if (selectedSet == null) {
-                GojuonTables { seion: Seion -> selectedSet = seion }
-            } else {
-                KanaFlashCard(selectedSet!!) { selectedSet = null }
+            if (view == View.HOME) {
+                HomeScreen(showFlashCards = { setView(View.FLASH_CARDS) })
+            }
+            else if (view == View.FLASH_CARDS) {
+                FlashCards(showHomeScreen = { setView(View.HOME) })
             }
         }
     }
 }
 
 @Composable
-private fun KanaFlashCard(selectedSet: Seion, resetFunction: () -> Unit) {
-    val candidateKana = selectedSet.getAllKana()
-    var currentKana by remember { mutableStateOf(candidateKana.random()) }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(currentKana.value, fontSize = 60.em)
-        Button(
-            modifier = Modifier.border(Dp.Hairline, Color.White),
-            onClick = { currentKana = candidateKana.random() }
-        ) {
-            Text("Show another ${selectedSet.javaClass.simpleName.lowercase()}")
+private fun HomeScreen(showFlashCards: () -> Unit) {
+    Column {
+        Row {
+            Titles()
         }
-        Button(
-            modifier = Modifier.border(Dp.Hairline, Color.White),
-            onClick = resetFunction
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text("Back to gojuon tables")
+            Button(
+                onClick = { showFlashCards() },
+                modifier = Modifier.border(Dp.Hairline, Color.White)
+            ) {
+                Text("Set up flash cards")
+            }
+        }
+        Row(
+            Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.Top
+        ) {
+            GojuonTables()
         }
     }
 }
@@ -131,7 +123,7 @@ fun Titles() {
 }
 
 @Composable
-private fun GojuonTables(clickHandler: (Seion) -> Unit) {
-    GojuonTableWithButton(clickHandler, Hiragana)
-    GojuonTableWithButton(clickHandler, Katakana)
+private fun GojuonTables() {
+    GojuonTable(Hiragana)
+    GojuonTable(Katakana)
 }
