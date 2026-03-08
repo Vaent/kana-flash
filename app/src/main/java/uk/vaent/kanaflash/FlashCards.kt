@@ -4,8 +4,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -13,11 +16,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -27,8 +32,10 @@ import uk.vaent.kanaflash.kana.Katakana
 @Composable
 fun FlashCards(showHomeScreen: () -> Unit) {
     val (playing, setPlaying) = remember { mutableStateOf(false) }
-    val (hiraganaSelected, setHiraganaSelected) = remember { mutableStateOf(true) }
-    val (katakanaSelected, setKatakanaSelected) = remember { mutableStateOf(true) }
+    val hiraganaSelected = remember { mutableStateOf(true) }
+    val katakanaSelected = remember { mutableStateOf(true) }
+    val sansSerifSelected = remember { mutableStateOf(true) }
+    val serifSelected = remember { mutableStateOf(true) }
 
     Scaffold { innerPadding ->
         Surface(
@@ -42,16 +49,18 @@ fun FlashCards(showHomeScreen: () -> Unit) {
             ) {
                 if (playing) {
                     KanaFlashCard(
-                        hiraganaSelected,
-                        katakanaSelected,
+                        hiraganaSelected.value,
+                        katakanaSelected.value,
+                        sansSerifSelected.value,
+                        serifSelected.value,
                         showOptions = { setPlaying(false) }
                     )
                 } else {
                     Options(
                         hiraganaSelected,
-                        setHiraganaSelected,
                         katakanaSelected,
-                        setKatakanaSelected,
+                        sansSerifSelected,
+                        serifSelected,
                         startPlaying = { setPlaying(true) }
                     )
                 }
@@ -70,59 +79,120 @@ fun FlashCards(showHomeScreen: () -> Unit) {
 
 @Composable
 private fun Options(
-    hiraganaSelected: Boolean,
-    setHiraganaSelected: (Boolean) -> Unit,
-    katakanaSelected: Boolean,
-    setKatakanaSelected: (Boolean) -> Unit,
+    hiraganaSelected: MutableState<Boolean>,
+    katakanaSelected: MutableState<Boolean>,
+    sansSerifSelected: MutableState<Boolean>,
+    serifSelected: MutableState<Boolean>,
     startPlaying: () -> Unit
 ) {
-    val (errorText, setErrorText) = remember { mutableStateOf("") }
+    val (charsErrorText, setCharsErrorText) = remember { mutableStateOf("") }
+    val (fontErrorText, setFontErrorText) = remember { mutableStateOf("") }
 
-    Row(Modifier.padding(20.dp)) {
-        Checkbox(
-            checked = hiraganaSelected,
-            onCheckedChange = { checked -> setHiraganaSelected(checked) },
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Column {
+            Text("Character sets")
+            Row(
+                Modifier.padding(vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = hiraganaSelected.value,
+                    onCheckedChange = { hiraganaSelected.value = it },
             modifier = Modifier.border(Dp.Hairline, Color.White)
-        )
-        Text("Hiragana")
+                )
+                Spacer(Modifier.width(5.dp))
+                Text("Hiragana")
+            }
+            Row(
+                Modifier.padding(vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = katakanaSelected.value,
+                    onCheckedChange = { katakanaSelected.value = it },
+            modifier = Modifier.border(Dp.Hairline, Color.White)
+                )
+                Spacer(Modifier.width(5.dp))
+                Text("Katakana")
+            }
+        }
+        Column {
+            Text("Text styles")
+            Row(
+                Modifier.padding(vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = sansSerifSelected.value,
+                    onCheckedChange = { sansSerifSelected.value = it },
+            modifier = Modifier.border(Dp.Hairline, Color.White)
+                )
+                Spacer(Modifier.width(5.dp))
+                Text("Printed")
+            }
+            Row(
+                Modifier.padding(vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = serifSelected.value,
+                    onCheckedChange = { serifSelected.value = it },
+            modifier = Modifier.border(Dp.Hairline, Color.White)
+                )
+                Spacer(Modifier.width(5.dp))
+                Text("Calligraphic")
+            }
+        }
     }
-    Row(Modifier.padding(20.dp)) {
-        Checkbox(
-            checked = katakanaSelected,
-            onCheckedChange = { checked -> setKatakanaSelected(checked) },
-            modifier = Modifier.border(Dp.Hairline, Color.White)
-        )
-        Text("Katakana")
+    Row(Modifier.padding(vertical = 20.dp)) {
+        Text(charsErrorText)
+    }
+    Row(Modifier.padding(vertical = 20.dp)) {
+        Text(fontErrorText)
     }
     Row(Modifier.padding(20.dp)) {
         Button(
             onClick = {
-                if (hiraganaSelected || katakanaSelected) startPlaying()
-                else setErrorText("At least one option must be selected")
+                val isCharSelectionValid = hiraganaSelected.value || katakanaSelected.value
+                val isFontSelectionValid = sansSerifSelected.value || serifSelected.value
+                setCharsErrorText(if (isCharSelectionValid) "" else "Select at least one character set")
+                setFontErrorText(if (isFontSelectionValid) "" else "Select at least one style")
+                if (isCharSelectionValid && isFontSelectionValid) startPlaying()
             },
             modifier = Modifier.border(Dp.Hairline, Color.White)
         ) {
             Text("Start playing")
         }
     }
-    Row(Modifier.padding(20.dp)) {
-        Text(errorText)
-    }
 }
 
 @Composable
-fun KanaFlashCard(hiraganaSelected: Boolean, katakanaSelected: Boolean, showOptions: () -> Unit) {
+fun KanaFlashCard(
+    hiragana: Boolean,
+    katakana: Boolean,
+    sansSerif: Boolean,
+    serif: Boolean,
+    showOptions: () -> Unit
+) {
     val selectedKanaName =
-        if (hiraganaSelected && !katakanaSelected) Hiragana.javaClass.simpleName
-        else if (katakanaSelected && !hiraganaSelected) Katakana.javaClass.simpleName
+        if (hiragana && !katakana) Hiragana.javaClass.simpleName
+        else if (katakana && !hiragana) Katakana.javaClass.simpleName
         else "${Hiragana.javaClass.simpleName}/${Katakana.javaClass.simpleName}"
     val candidateKana =
-        if (hiraganaSelected && !katakanaSelected) Hiragana.getAllKana()
-        else if (katakanaSelected && !hiraganaSelected) Katakana.getAllKana()
+        if (hiragana && !katakana) Hiragana.getAllKana()
+        else if (katakana && !hiragana) Katakana.getAllKana()
         else Hiragana.getAllKana().plus(Katakana.getAllKana())
     val (currentKana, setCurrentKana) = remember { mutableStateOf(candidateKana.random()) }
 
-    Text(currentKana.value, fontSize = 60.em)
+    val fontFamily: () -> FontFamily =
+        if (sansSerif && !serif) ({ FontFamily.SansSerif })
+        else if (serif && !sansSerif) ({ FontFamily.Serif })
+        else ({ arrayOf(FontFamily.Serif, FontFamily.SansSerif).random() })
+
+    Text(currentKana.value, fontSize = 60.em, fontFamily = fontFamily())
     Button(
         modifier = Modifier.border(Dp.Hairline, Color.White),
         onClick = { setCurrentKana(candidateKana.random()) }
