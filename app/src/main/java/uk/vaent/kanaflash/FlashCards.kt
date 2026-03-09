@@ -195,7 +195,11 @@ fun KanaFlashCard(
     Text(currentKana.value, fontSize = 60.em, fontFamily = fontFamily())
     Button(
         modifier = Modifier.border(Dp.Hairline, Color.White),
-        onClick = { setCurrentKana(candidateKana.random()) }
+        onClick = {
+            var nextKana = candidateKana.random()
+            while (nextKana == currentKana) nextKana = candidateKana.random()
+            setCurrentKana(nextKana)
+        }
     ) {
         Text("Show another $selectedKanaName")
     }
