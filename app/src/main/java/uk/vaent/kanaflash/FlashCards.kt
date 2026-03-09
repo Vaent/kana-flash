@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +39,7 @@ fun FlashCards(showHomeScreen: () -> Unit) {
     val katakanaSelected = remember { mutableStateOf(true) }
     val sansSerifSelected = remember { mutableStateOf(true) }
     val serifSelected = remember { mutableStateOf(true) }
+    val includeObsolete = remember { mutableStateOf(true) }
 
     Scaffold { innerPadding ->
         Surface(
@@ -53,6 +57,7 @@ fun FlashCards(showHomeScreen: () -> Unit) {
                         katakanaSelected.value,
                         sansSerifSelected.value,
                         serifSelected.value,
+                        includeObsolete.value,
                         showOptions = { setPlaying(false) }
                     )
                 } else {
@@ -61,6 +66,7 @@ fun FlashCards(showHomeScreen: () -> Unit) {
                         katakanaSelected,
                         sansSerifSelected,
                         serifSelected,
+                        includeObsolete,
                         startPlaying = { setPlaying(true) }
                     )
                 }
@@ -83,6 +89,7 @@ private fun Options(
     katakanaSelected: MutableState<Boolean>,
     sansSerifSelected: MutableState<Boolean>,
     serifSelected: MutableState<Boolean>,
+    includeObsolete: MutableState<Boolean>,
     startPlaying: () -> Unit
 ) {
     val (charsErrorText, setCharsErrorText) = remember { mutableStateOf("") }
@@ -92,7 +99,11 @@ private fun Options(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Column {
+        Column(
+            Modifier
+                .border(Dp.Hairline, Color.White)
+                .padding(20.dp)
+        ) {
             Text("Character sets")
             Row(
                 Modifier.padding(vertical = 20.dp),
@@ -119,7 +130,11 @@ private fun Options(
                 Text("Katakana")
             }
         }
-        Column {
+        Column(
+            Modifier
+                .border(Dp.Hairline, Color.White)
+                .padding(20.dp)
+        ) {
             Text("Text styles")
             Row(
                 Modifier.padding(vertical = 20.dp),
@@ -144,6 +159,43 @@ private fun Options(
                 )
                 Spacer(Modifier.width(5.dp))
                 Text("Calligraphic")
+            }
+        }
+    }
+    Spacer(Modifier.height(20.dp))
+    Row(
+        Modifier
+            .border(Dp.Hairline, Color.White)
+            .padding(20.dp)
+            .fillMaxWidth(0.8f),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Column {
+            Text("Include obsolete kana?")
+            Row {
+                Text("Yes")
+                RadioButton(
+                    selected = includeObsolete.value,
+                    onClick = { includeObsolete.value = true },
+                    colors = RadioButtonColors(
+                        selectedColor = Color.White,
+                        unselectedColor = Color.White,
+                        Color.Gray,
+                        Color.Gray
+                    )
+                )
+                Spacer(Modifier.width(15.dp))
+                Text("No")
+                RadioButton(
+                    selected = !includeObsolete.value,
+                    onClick = { includeObsolete.value = false },
+                    colors = RadioButtonColors(
+                        selectedColor = Color.White,
+                        unselectedColor = Color.White,
+                        Color.Gray,
+                        Color.Gray
+                    )
+                )
             }
         }
     }
@@ -175,6 +227,7 @@ fun KanaFlashCard(
     katakana: Boolean,
     sansSerif: Boolean,
     serif: Boolean,
+    includeObsolete: Boolean,
     showOptions: () -> Unit
 ) {
     val selectedKanaName =
@@ -182,15 +235,16 @@ fun KanaFlashCard(
         else if (katakana && !hiragana) Katakana.javaClass.simpleName
         else "${Hiragana.javaClass.simpleName}/${Katakana.javaClass.simpleName}"
     val candidateKana =
-        if (hiragana && !katakana) Hiragana.getAllKana()
-        else if (katakana && !hiragana) Katakana.getAllKana()
-        else Hiragana.getAllKana().plus(Katakana.getAllKana())
-    val (currentKana, setCurrentKana) = remember { mutableStateOf(candidateKana.random()) }
+        if (hiragana && !katakana) Hiragana.getAllKana(includeObsolete)
+        else if (katakana && !hiragana) Katakana.getAllKana(includeObsolete)
+        else Hiragana.getAllKana(includeObsolete).plus(Katakana.getAllKana(includeObsolete))
 
     val fontFamily: () -> FontFamily =
         if (sansSerif && !serif) ({ FontFamily.SansSerif })
         else if (serif && !sansSerif) ({ FontFamily.Serif })
         else ({ arrayOf(FontFamily.Serif, FontFamily.SansSerif).random() })
+
+    val (currentKana, setCurrentKana) = remember { mutableStateOf(candidateKana.random()) }
 
     Text(currentKana.value, fontSize = 60.em, fontFamily = fontFamily())
     Button(

@@ -17,10 +17,11 @@ interface Seion {
         return listOf(boon, kaGyo, saGyo, taGyo, naGyo, haGyo, maGyo, yaGyo, raGyo, waGyo)
     }
 
-    fun getAllKana(): List<Kana> {
+    fun getAllKana(includeObsolete: Boolean = true): List<Kana> {
         return arrayOf(boon, kaGyo, saGyo, taGyo, naGyo, haGyo, maGyo, yaGyo, raGyo, waGyo)
             .flatMap(Gyo::getAllKana)
             .filterNotNull()
+            .filter { includeObsolete || (it != waGyo.iDan && it != waGyo.eDan) }
             .plus(hatsuon)
     }
 }
