@@ -4,8 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,9 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uk.vaent.kanaflash.kana.Hiragana
 import uk.vaent.kanaflash.kana.Katakana
@@ -59,9 +55,7 @@ enum class View {
 fun MainApp(modifier: Modifier = Modifier) {
     val (view, setView) = remember { mutableStateOf(View.HOME) }
     KanaFlashTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.primary
-        ) {
+        Surface(color = MaterialTheme.colorScheme.surface) {
             if (view == View.HOME) {
                 HomeScreen(showFlashCards = { setView(View.FLASH_CARDS) })
             }
@@ -84,10 +78,7 @@ private fun HomeScreen(showFlashCards: () -> Unit) {
                 .padding(20.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = { showFlashCards() },
-                modifier = Modifier.border(Dp.Hairline, Color.White)
-            ) {
+            Button(onClick = { showFlashCards() }) {
                 Text("Set up flash cards")
             }
         }
@@ -103,21 +94,21 @@ private fun HomeScreen(showFlashCards: () -> Unit) {
 
 @Composable
 fun Titles() {
-    Column(
-        Modifier
-            .background(MaterialTheme.colorScheme.tertiary)
-            .fillMaxWidth()
-            .padding(vertical = 40.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        for (title in arrayOf("Kana Flash", "かなフラシ")) {
-            Text(
-                title,
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 12.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
+    Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 40.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            for (title in arrayOf("Kana Flash", "かなフラシ")) {
+                Text(
+                    title,
+                    Modifier.padding(vertical = 12.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
         }
     }
 }

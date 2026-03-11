@@ -7,33 +7,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uk.vaent.kanaflash.kana.Kana
 import uk.vaent.kanaflash.kana.Seion
 
 private val cellSize: Dp = 36.dp
-
-@Composable
-fun GojuonTableWithButton(
-    clickHandler: (Seion) -> Unit, seion: Seion
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Button(
-            modifier = Modifier.border(Dp.Hairline, Color.White),
-            onClick = { clickHandler(seion) }
-        ) {
-            Text(seion.javaClass.simpleName)
-        }
-        GojuonTable(seion)
-    }
-}
 
 @Composable
 fun GojuonTable(seion: Seion) {
@@ -55,7 +39,7 @@ fun GojuonTable(seion: Seion) {
 private fun GridCell(kana: Kana?, columns: Int = 1) {
     Column(
         Modifier
-            .border(Dp.Hairline, Color(180, 180, 180))
+            .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
             .height(cellSize)
             .width(cellSize * columns),
         verticalArrangement = Arrangement.Center,

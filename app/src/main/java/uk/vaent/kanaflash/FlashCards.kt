@@ -14,8 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonColors
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.RadioButtonDefaults.colors
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -41,42 +39,34 @@ fun FlashCards(showHomeScreen: () -> Unit) {
     val serifSelected = remember { mutableStateOf(true) }
     val includeObsolete = remember { mutableStateOf(true) }
 
-    Scaffold { innerPadding ->
-        Surface(
-            Modifier.padding(innerPadding),
-            color = MaterialTheme.colorScheme.primary
+    Surface(color = MaterialTheme.colorScheme.surface) {
+        Column(
+            Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
-                Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                if (playing) {
-                    KanaFlashCard(
-                        hiraganaSelected.value,
-                        katakanaSelected.value,
-                        sansSerifSelected.value,
-                        serifSelected.value,
-                        includeObsolete.value,
-                        showOptions = { setPlaying(false) }
-                    )
-                } else {
-                    Options(
-                        hiraganaSelected,
-                        katakanaSelected,
-                        sansSerifSelected,
-                        serifSelected,
-                        includeObsolete,
-                        startPlaying = { setPlaying(true) }
-                    )
-                }
-                Row(horizontalArrangement = Arrangement.Center) {
-                    Button(
-                        modifier = Modifier.border(Dp.Hairline, Color.White),
-                        onClick = { showHomeScreen() }
-                    ) {
-                        Text("Back to home screen")
-                    }
+            if (playing) {
+                KanaFlashCard(
+                    hiraganaSelected.value,
+                    katakanaSelected.value,
+                    sansSerifSelected.value,
+                    serifSelected.value,
+                    includeObsolete.value,
+                    showOptions = { setPlaying(false) }
+                )
+            } else {
+                Options(
+                    hiraganaSelected,
+                    katakanaSelected,
+                    sansSerifSelected,
+                    serifSelected,
+                    includeObsolete,
+                    startPlaying = { setPlaying(true) }
+                )
+            }
+            Row(horizontalArrangement = Arrangement.Center) {
+                Button(onClick = { showHomeScreen() }) {
+                    Text("Back to home screen")
                 }
             }
         }
@@ -101,7 +91,7 @@ private fun Options(
     ) {
         Column(
             Modifier
-                .border(Dp.Hairline, Color.White)
+                .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
                 .padding(20.dp)
         ) {
             Text("Character sets")
@@ -111,8 +101,7 @@ private fun Options(
             ) {
                 Checkbox(
                     checked = hiraganaSelected.value,
-                    onCheckedChange = { hiraganaSelected.value = it },
-            modifier = Modifier.border(Dp.Hairline, Color.White)
+                    onCheckedChange = { hiraganaSelected.value = it }
                 )
                 Spacer(Modifier.width(5.dp))
                 Text("Hiragana")
@@ -123,8 +112,7 @@ private fun Options(
             ) {
                 Checkbox(
                     checked = katakanaSelected.value,
-                    onCheckedChange = { katakanaSelected.value = it },
-            modifier = Modifier.border(Dp.Hairline, Color.White)
+                    onCheckedChange = { katakanaSelected.value = it }
                 )
                 Spacer(Modifier.width(5.dp))
                 Text("Katakana")
@@ -132,7 +120,7 @@ private fun Options(
         }
         Column(
             Modifier
-                .border(Dp.Hairline, Color.White)
+                .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
                 .padding(20.dp)
         ) {
             Text("Text styles")
@@ -142,8 +130,7 @@ private fun Options(
             ) {
                 Checkbox(
                     checked = sansSerifSelected.value,
-                    onCheckedChange = { sansSerifSelected.value = it },
-            modifier = Modifier.border(Dp.Hairline, Color.White)
+                    onCheckedChange = { sansSerifSelected.value = it }
                 )
                 Spacer(Modifier.width(5.dp))
                 Text("Printed")
@@ -154,8 +141,7 @@ private fun Options(
             ) {
                 Checkbox(
                     checked = serifSelected.value,
-                    onCheckedChange = { serifSelected.value = it },
-            modifier = Modifier.border(Dp.Hairline, Color.White)
+                    onCheckedChange = { serifSelected.value = it }
                 )
                 Spacer(Modifier.width(5.dp))
                 Text("Calligraphic")
@@ -165,7 +151,7 @@ private fun Options(
     Spacer(Modifier.height(20.dp))
     Row(
         Modifier
-            .border(Dp.Hairline, Color.White)
+            .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
             .padding(20.dp)
             .fillMaxWidth(0.8f),
         horizontalArrangement = Arrangement.Center
@@ -177,24 +163,14 @@ private fun Options(
                 RadioButton(
                     selected = includeObsolete.value,
                     onClick = { includeObsolete.value = true },
-                    colors = RadioButtonColors(
-                        selectedColor = Color.White,
-                        unselectedColor = Color.White,
-                        Color.Gray,
-                        Color.Gray
-                    )
+                    colors = colors(unselectedColor = MaterialTheme.colorScheme.secondary)
                 )
                 Spacer(Modifier.width(15.dp))
                 Text("No")
                 RadioButton(
                     selected = !includeObsolete.value,
                     onClick = { includeObsolete.value = false },
-                    colors = RadioButtonColors(
-                        selectedColor = Color.White,
-                        unselectedColor = Color.White,
-                        Color.Gray,
-                        Color.Gray
-                    )
+                    colors = colors(unselectedColor = MaterialTheme.colorScheme.secondary)
                 )
             }
         }
@@ -214,7 +190,6 @@ private fun Options(
                 setFontErrorText(if (isFontSelectionValid) "" else "Select at least one style")
                 if (isCharSelectionValid && isFontSelectionValid) startPlaying()
             },
-            modifier = Modifier.border(Dp.Hairline, Color.White)
         ) {
             Text("Start playing")
         }
@@ -247,20 +222,20 @@ fun KanaFlashCard(
     val (currentKana, setCurrentKana) = remember { mutableStateOf(candidateKana.random()) }
 
     Text(currentKana.value, fontSize = 60.em, fontFamily = fontFamily())
-    Button(
-        modifier = Modifier.border(Dp.Hairline, Color.White),
-        onClick = {
-            var nextKana = candidateKana.random()
-            while (nextKana == currentKana) nextKana = candidateKana.random()
-            setCurrentKana(nextKana)
+    Row(Modifier.padding(20.dp)) {
+        Button(
+            onClick = {
+                var nextKana = candidateKana.random()
+                while (nextKana == currentKana) nextKana = candidateKana.random()
+                setCurrentKana(nextKana)
+            }
+        ) {
+            Text("Show another $selectedKanaName")
         }
-    ) {
-        Text("Show another $selectedKanaName")
     }
-    Button(
-        modifier = Modifier.border(Dp.Hairline, Color.White),
-        onClick = { showOptions() }
-    ) {
-        Text("Back to options")
+    Row(Modifier.padding(20.dp)) {
+        Button(onClick = { showOptions() }) {
+            Text("Back to options")
+        }
     }
 }
