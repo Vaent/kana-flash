@@ -38,6 +38,10 @@ object Hiragana : Seion {
     override val raGyo: Gyo = GyoImpl.from("らりるれろ")
     override val waGyo: Gyo = GyoImpl.from("わゐ ゑを")
     override val hatsuon: Kana = KanaImpl('ん')
+
+    override fun toString(): String {
+        return this.javaClass.simpleName
+    }
 }
 
 object Katakana : Seion {
@@ -52,4 +56,8 @@ object Katakana : Seion {
     override val raGyo: Gyo = GyoImpl.from("ラリルレロ")
     override val waGyo: Gyo = GyoImpl.from("ワヰ ヱヲ")
     override val hatsuon: Kana = KanaImpl('ン')
+
+    override fun toString(): String {
+        return this.javaClass.simpleName
+    }
 }

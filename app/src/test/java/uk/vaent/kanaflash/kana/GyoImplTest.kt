@@ -7,7 +7,7 @@ import kotlin.test.assertNull
 
 class GyoImplTest {
     @Test
-    fun permitsNullChildrenInCertainPositions() {
+    fun `permits null children in certain positions`() {
         val gyo = GyoImpl('a', null, null, null, 'o')
 
         assertEquals("a", gyo.aDan.value)
@@ -18,7 +18,7 @@ class GyoImplTest {
     }
 
     @Test
-    fun createsGyoFromCharactersOfSuppliedString() {
+    fun `creates gyo from characters of supplied string`() {
         val gyo = GyoImpl.from("xy1ab")
         assertEquals("x", gyo.aDan.value)
         assertEquals("y", gyo.iDan?.value)
@@ -28,7 +28,7 @@ class GyoImplTest {
     }
 
     @Test
-    fun convertsSpacesInInputToNull() {
+    fun `converts spaces in input to null`() {
         val gyo = GyoImpl.from("a   o")
 
         assertEquals("a", gyo.aDan.value)
@@ -39,13 +39,13 @@ class GyoImplTest {
     }
 
     @Test
-    fun throwsForInputOfIncorrectLength() {
+    fun `throws for input of incorrect length`() {
         assertFailsWith<IllegalArgumentException>(block = { GyoImpl.from("xyab") })
         assertFailsWith<IllegalArgumentException>(block = { GyoImpl.from("xxyyab") })
     }
 
     @Test
-    fun returnsAllKanaInOrderSupplied() {
+    fun `returns all kana in order supplied`() {
         val expectedKana = listOf(
             KanaImpl('x'),
             KanaImpl('y'),
