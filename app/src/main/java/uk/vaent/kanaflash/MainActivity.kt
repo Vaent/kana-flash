@@ -102,7 +102,7 @@ fun Titles() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            for (title in arrayOf("Kana Flash", "かなフラシ")) {
+            for (title in arrayOf("Kana Flash", "かなフラッシュ")) {
                 Text(
                     title,
                     Modifier.padding(vertical = 12.dp),
