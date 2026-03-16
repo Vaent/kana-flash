@@ -95,28 +95,8 @@ private fun Options(
                 .padding(20.dp)
         ) {
             Text("Character sets")
-            Row(
-                Modifier.padding(vertical = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = hiraganaSelected.value,
-                    onCheckedChange = { hiraganaSelected.value = it }
-                )
-                Spacer(Modifier.width(5.dp))
-                Text("Hiragana")
-            }
-            Row(
-                Modifier.padding(vertical = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = katakanaSelected.value,
-                    onCheckedChange = { katakanaSelected.value = it }
-                )
-                Spacer(Modifier.width(5.dp))
-                Text("Katakana")
-            }
+            CheckboxOption(hiraganaSelected, "Hiragana")
+            CheckboxOption(katakanaSelected, "Katakana")
         }
         Column(
             Modifier
@@ -124,28 +104,8 @@ private fun Options(
                 .padding(20.dp)
         ) {
             Text("Text styles")
-            Row(
-                Modifier.padding(vertical = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = sansSerifSelected.value,
-                    onCheckedChange = { sansSerifSelected.value = it }
-                )
-                Spacer(Modifier.width(5.dp))
-                Text("Printed")
-            }
-            Row(
-                Modifier.padding(vertical = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = serifSelected.value,
-                    onCheckedChange = { serifSelected.value = it }
-                )
-                Spacer(Modifier.width(5.dp))
-                Text("Calligraphic")
-            }
+            CheckboxOption(sansSerifSelected, "Printed")
+            CheckboxOption(serifSelected, "Calligraphic")
         }
     }
     Spacer(Modifier.height(20.dp))
@@ -175,12 +135,6 @@ private fun Options(
             }
         }
     }
-    Row(Modifier.padding(vertical = 20.dp)) {
-        Text(charsErrorText)
-    }
-    Row(Modifier.padding(vertical = 20.dp)) {
-        Text(fontErrorText)
-    }
     Row(Modifier.padding(20.dp)) {
         Button(
             onClick = {
@@ -193,6 +147,24 @@ private fun Options(
         ) {
             Text("Start playing")
         }
+    }
+    Row(Modifier.padding(vertical = 20.dp)) {
+        Text(charsErrorText)
+    }
+    Row(Modifier.padding(vertical = 20.dp)) {
+        Text(fontErrorText)
+    }
+}
+
+@Composable
+private fun CheckboxOption(mutableState: MutableState<Boolean>, displayText: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(
+            checked = mutableState.value,
+            onCheckedChange = { mutableState.value = it }
+        )
+        Spacer(Modifier.width(5.dp))
+        Text(displayText)
     }
 }
 
