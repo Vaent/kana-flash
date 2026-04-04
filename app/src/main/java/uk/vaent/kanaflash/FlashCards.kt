@@ -31,7 +31,7 @@ import uk.vaent.kanaflash.kana.Hiragana
 import uk.vaent.kanaflash.kana.Katakana
 
 @Composable
-fun FlashCards(showHomeScreen: () -> Unit) {
+fun FlashCardsScreen(showHomeScreen: () -> Unit) {
     val (playing, setPlaying) = remember { mutableStateOf(false) }
     val hiraganaSelected = remember { mutableStateOf(true) }
     val katakanaSelected = remember { mutableStateOf(true) }

@@ -15,12 +15,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import kotlinx.serialization.Serializable
 import uk.vaent.kanaflash.kana.Hiragana
 import uk.vaent.kanaflash.kana.Katakana
 import uk.vaent.kanaflash.layout.GojuonTable
@@ -46,21 +48,19 @@ fun VerticalPreview() {
     MainApp()
 }
 
-enum class View {
-    HOME,
-    FLASH_CARDS
-}
+@Serializable
+object Intro
+@Serializable
+object FlashCards
 
 @Composable
 fun MainApp(modifier: Modifier = Modifier) {
-    val (view, setView) = remember { mutableStateOf(View.HOME) }
     KanaFlashTheme {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            if (view == View.HOME) {
-                HomeScreen(showFlashCards = { setView(View.FLASH_CARDS) })
-            }
-            else if (view == View.FLASH_CARDS) {
-                FlashCards(showHomeScreen = { setView(View.HOME) })
+            val navController = rememberNavController()
+            NavHost(navController = navController, startDestination = Intro) {
+                composable<Intro> { HomeScreen { navController.navigate(FlashCards) } }
+                composable<FlashCards> { FlashCardsScreen { navController.navigate(Intro) } }
             }
         }
     }
