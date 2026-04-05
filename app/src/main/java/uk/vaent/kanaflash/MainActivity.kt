@@ -15,6 +15,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
+import uk.vaent.kanaflash.config.FlashCardOptions
 import uk.vaent.kanaflash.kana.Hiragana
 import uk.vaent.kanaflash.kana.Katakana
 import uk.vaent.kanaflash.layout.GojuonTable
@@ -57,10 +60,13 @@ object FlashCards
 fun MainApp(modifier: Modifier = Modifier) {
     KanaFlashTheme {
         Surface(color = MaterialTheme.colorScheme.surface) {
+            val flashCardOptions = remember { mutableStateOf(FlashCardOptions()) }
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = Intro) {
                 composable<Intro> { HomeScreen { navController.navigate(FlashCards) } }
-                composable<FlashCards> { FlashCardsScreen { navController.navigate(Intro) } }
+                composable<FlashCards> { FlashCardOptionsScreen(flashCardOptions) {
+                    navController.navigate(Intro)
+                } }
             }
         }
     }
