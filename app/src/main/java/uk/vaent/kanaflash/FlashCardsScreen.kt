@@ -27,11 +27,11 @@ fun FlashCardsScreen(
     showOptions: () -> Unit,
     showHomeScreen: () -> Unit
 ) {
-    val (hiragana, katakana, sansSerif, serif, includeObsolete) = options.value
+    val (hiragana, katakana, printed, calligraphic, includeObsolete) = options.value
 
     val selectedKanaName = getSelectedKanaName(hiragana, katakana)
     val candidateKana = getCandidateKana(hiragana, katakana, includeObsolete)
-    val fontFamily = getFontFamilyPicker(sansSerif, serif)
+    val fontFamily = getFontFamilyPicker(printed, calligraphic)
 
     val (currentKana, setCurrentKana) = remember { mutableStateOf(candidateKana.random()) }
 
@@ -84,9 +84,9 @@ private fun getCandidateKana(
     else if (katakana && !hiragana) Katakana.getAllKana(includeObsolete)
     else Hiragana.getAllKana(includeObsolete).plus(Katakana.getAllKana(includeObsolete))
 
-private fun getFontFamilyPicker(sansSerif: Boolean, serif: Boolean): () -> FontFamily =
-    if (sansSerif && !serif) ({ FontFamily.SansSerif })
-    else if (serif && !sansSerif) ({ FontFamily.Serif })
+private fun getFontFamilyPicker(printed: Boolean, calligraphic: Boolean): () -> FontFamily =
+    if (printed && !calligraphic) ({ FontFamily.SansSerif })
+    else if (calligraphic && !printed) ({ FontFamily.Serif })
     else ({ arrayOf(FontFamily.Serif, FontFamily.SansSerif).random() })
 
 private fun getNextKanaPicker(

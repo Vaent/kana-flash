@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uk.vaent.kanaflash.config.FlashCardOptions
+import kotlin.reflect.KProperty1
 
 @Composable
 fun FlashCardOptionsScreen(
@@ -58,32 +59,8 @@ private fun OptionsForm(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Column(
-            Modifier
-                .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
-                .padding(20.dp)
-        ) {
-            Text("Character sets")
-            CheckboxOption("Hiragana", options.value.hiragana) {
-                options.value = options.value.copy(hiragana = it)
-            }
-            CheckboxOption("Katakana", options.value.katakana) {
-                options.value = options.value.copy(katakana = it)
-            }
-        }
-        Column(
-            Modifier
-                .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
-                .padding(20.dp)
-        ) {
-            Text("Text styles")
-            CheckboxOption("Printed", options.value.sansSerif) {
-                options.value = options.value.copy(sansSerif = it)
-            }
-            CheckboxOption("Calligraphic", options.value.serif) {
-                options.value = options.value.copy(serif = it)
-            }
-        }
+        CheckboxSet(options, "Character sets", FlashCardOptions::hiragana, FlashCardOptions::katakana)
+        CheckboxSet(options, "Text styles", FlashCardOptions::printed, FlashCardOptions::calligraphic)
     }
     Spacer(Modifier.height(20.dp))
     Row(
@@ -116,7 +93,7 @@ private fun OptionsForm(
         Button(
             onClick = {
                 val isCharSelectionValid = options.value.hiragana || options.value.katakana
-                val isFontSelectionValid = options.value.sansSerif || options.value.serif
+                val isFontSelectionValid = options.value.printed || options.value.calligraphic
                 setCharsErrorText(if (isCharSelectionValid) "" else "Select at least one character set")
                 setFontErrorText(if (isFontSelectionValid) "" else "Select at least one style")
                 if (isCharSelectionValid && isFontSelectionValid) startPlaying()
@@ -130,6 +107,27 @@ private fun OptionsForm(
     }
     Row(Modifier.padding(vertical = 20.dp)) {
         Text(fontErrorText)
+    }
+}
+
+@Composable
+private fun CheckboxSet(
+    options: MutableState<FlashCardOptions>,
+    title: String,
+    vararg properties: KProperty1<FlashCardOptions, Boolean>
+) {
+    Column(
+        Modifier
+            .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
+            .padding(20.dp)
+    ) {
+        Text(title)
+        properties.forEach { property ->
+            CheckboxOption(
+                property.name.replaceFirstChar(Char::titlecase),
+                property.get(options.value)
+            ) { options.value = options.value.replace(property, it) }
+        }
     }
 }
 
