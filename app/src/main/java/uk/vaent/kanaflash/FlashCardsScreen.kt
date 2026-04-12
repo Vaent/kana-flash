@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -33,18 +33,15 @@ fun FlashCardsScreen(
     val candidateKana = getCandidateKana(hiragana, katakana, includeObsolete)
     val fontFamily = getFontFamilyPicker(printed, calligraphic)
 
-    val (currentKana, setCurrentKana) = remember { mutableStateOf(candidateKana.random()) }
+    val currentKanaString = rememberSaveable { mutableStateOf(candidateKana.random().value) }
 
     Column(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(currentKana.value, fontSize = 60.em, fontFamily = fontFamily())
-        NextKanaButton(
-            selectedKanaName,
-            getNextKanaPicker(candidateKana, currentKana, setCurrentKana)
-        )
+        Text(currentKanaString.value, fontSize = 60.em, fontFamily = fontFamily())
+        NextKanaButton(selectedKanaName) { getNextKana(candidateKana, currentKanaString) }
         Row(Modifier.padding(20.dp)) {
             Button(onClick = { showOptions() }) {
                 Text("Back to options")
@@ -89,12 +86,8 @@ private fun getFontFamilyPicker(printed: Boolean, calligraphic: Boolean): () -> 
     else if (calligraphic && !printed) ({ FontFamily.Serif })
     else ({ arrayOf(FontFamily.Serif, FontFamily.SansSerif).random() })
 
-private fun getNextKanaPicker(
-    candidateKana: List<Kana>,
-    currentKana: Kana,
-    setCurrentKana: (Kana) -> Unit
-): () -> Unit = {
+private fun getNextKana(candidateKana: List<Kana>, currentKanaString: MutableState<String>) {
     var nextKana = candidateKana.random()
-    while (nextKana == currentKana) nextKana = candidateKana.random()
-    setCurrentKana(nextKana)
+    while (nextKana.value == currentKanaString.value) nextKana = candidateKana.random()
+    currentKanaString.value = nextKana.value
 }
