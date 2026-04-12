@@ -22,13 +22,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import uk.vaent.kanaflash.config.FlashCardOptions
-import uk.vaent.kanaflash.kana.Hiragana
-import uk.vaent.kanaflash.kana.Katakana
 
 @Composable
 fun FlashCardOptionsScreen(
@@ -157,50 +153,5 @@ private fun CheckboxOption(displayText: String, value: Boolean, valueSetter: (Bo
         )
         Spacer(Modifier.width(5.dp))
         Text(displayText)
-    }
-}
-
-@Composable
-fun KanaFlashCard(
-    options: MutableState<FlashCardOptions>,
-    showOptions: () -> Unit
-) {
-    val selectedKanaName =
-        if (options.value.hiragana && !options.value.katakana) Hiragana.javaClass.simpleName
-        else if (options.value.katakana && !options.value.hiragana) Katakana.javaClass.simpleName
-        else "${Hiragana.javaClass.simpleName}/${Katakana.javaClass.simpleName}"
-    val candidateKana =
-        if (options.value.hiragana && !options.value.katakana) {
-            Hiragana.getAllKana(options.value.includeObsolete)
-        } else if (options.value.katakana && !options.value.hiragana) {
-            Katakana.getAllKana(options.value.includeObsolete)
-        } else {
-            Hiragana.getAllKana(options.value.includeObsolete)
-                .plus(Katakana.getAllKana(options.value.includeObsolete))
-        }
-
-    val fontFamily: () -> FontFamily =
-        if (options.value.sansSerif && !options.value.serif) ({ FontFamily.SansSerif })
-        else if (options.value.serif && !options.value.sansSerif) ({ FontFamily.Serif })
-        else ({ arrayOf(FontFamily.Serif, FontFamily.SansSerif).random() })
-
-    val (currentKana, setCurrentKana) = remember { mutableStateOf(candidateKana.random()) }
-
-    Text(currentKana.value, fontSize = 60.em, fontFamily = fontFamily())
-    Row(Modifier.padding(20.dp)) {
-        Button(
-            onClick = {
-                var nextKana = candidateKana.random()
-                while (nextKana == currentKana) nextKana = candidateKana.random()
-                setCurrentKana(nextKana)
-            }
-        ) {
-            Text("Show another $selectedKanaName")
-        }
-    }
-    Row(Modifier.padding(20.dp)) {
-        Button(onClick = { showOptions() }) {
-            Text("Back to options")
-        }
     }
 }
