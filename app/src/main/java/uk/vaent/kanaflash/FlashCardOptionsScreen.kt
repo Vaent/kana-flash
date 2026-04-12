@@ -9,12 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults.colors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -25,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uk.vaent.kanaflash.config.FlashCardOptions
+import uk.vaent.kanaflash.ui.component.CheckboxGroup
+import uk.vaent.kanaflash.ui.component.YesNoRadio
 import kotlin.reflect.KProperty1
 
 @Composable
@@ -55,12 +53,21 @@ private fun OptionsForm(
     val (charsErrorText, setCharsErrorText) = remember { mutableStateOf("") }
     val (fontErrorText, setFontErrorText) = remember { mutableStateOf("") }
 
+    fun getPropertySetter(property: KProperty1<FlashCardOptions, Boolean>): (Boolean) -> Unit = {
+        options.value = options.value.replace(property, it)
+    }
+
+    @Composable
+    fun OptionCheckboxes(title: String, vararg properties: KProperty1<FlashCardOptions, Boolean>) {
+        CheckboxGroup(options.value, title, *properties) { getPropertySetter(it) }
+    }
+
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        CheckboxSet(options, "Character sets", FlashCardOptions::hiragana, FlashCardOptions::katakana)
-        CheckboxSet(options, "Text styles", FlashCardOptions::printed, FlashCardOptions::calligraphic)
+        OptionCheckboxes("Character sets", FlashCardOptions::hiragana, FlashCardOptions::katakana)
+        OptionCheckboxes("Text styles", FlashCardOptions::printed, FlashCardOptions::calligraphic)
     }
     Spacer(Modifier.height(20.dp))
     Row(
@@ -70,24 +77,12 @@ private fun OptionsForm(
             .fillMaxWidth(0.8f),
         horizontalArrangement = Arrangement.Center
     ) {
-        Column {
-            Text("Include obsolete kana?")
-            Row {
-                Text("Yes")
-                RadioButton(
-                    selected = options.value.includeObsolete,
-                    onClick = { options.value = options.value.copy(includeObsolete = true) },
-                    colors = colors(unselectedColor = MaterialTheme.colorScheme.secondary)
-                )
-                Spacer(Modifier.width(15.dp))
-                Text("No")
-                RadioButton(
-                    selected = !options.value.includeObsolete,
-                    onClick = { options.value = options.value.copy(includeObsolete = false) },
-                    colors = colors(unselectedColor = MaterialTheme.colorScheme.secondary)
-                )
-            }
-        }
+        YesNoRadio(
+            options.value,
+            FlashCardOptions::includeObsolete,
+            "Include obsolete kana?",
+            getPropertySetter(FlashCardOptions::includeObsolete)
+        )
     }
     Row(Modifier.padding(20.dp)) {
         Button(
@@ -107,38 +102,5 @@ private fun OptionsForm(
     }
     Row(Modifier.padding(vertical = 20.dp)) {
         Text(fontErrorText)
-    }
-}
-
-@Composable
-private fun CheckboxSet(
-    options: MutableState<FlashCardOptions>,
-    title: String,
-    vararg properties: KProperty1<FlashCardOptions, Boolean>
-) {
-    Column(
-        Modifier
-            .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
-            .padding(20.dp)
-    ) {
-        Text(title)
-        properties.forEach { property ->
-            CheckboxOption(
-                property.name.replaceFirstChar(Char::titlecase),
-                property.get(options.value)
-            ) { options.value = options.value.replace(property, it) }
-        }
-    }
-}
-
-@Composable
-private fun CheckboxOption(displayText: String, value: Boolean, valueSetter: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(
-            checked = value,
-            onCheckedChange = { valueSetter(it) }
-        )
-        Spacer(Modifier.width(5.dp))
-        Text(displayText)
     }
 }
