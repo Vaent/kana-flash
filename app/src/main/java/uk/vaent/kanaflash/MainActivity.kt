@@ -54,6 +54,8 @@ fun VerticalPreview() {
 @Serializable
 object Intro
 @Serializable
+object FlashCardsSetup
+@Serializable
 object FlashCards
 
 @Composable
@@ -63,10 +65,23 @@ fun MainApp(modifier: Modifier = Modifier) {
             val flashCardOptions = remember { mutableStateOf(FlashCardOptions()) }
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = Intro) {
-                composable<Intro> { HomeScreen { navController.navigate(FlashCards) } }
-                composable<FlashCards> { FlashCardOptionsScreen(flashCardOptions) {
-                    navController.navigate(Intro)
-                } }
+                composable<Intro> {
+                    HomeScreen { navController.navigate(FlashCardsSetup) }
+                }
+                composable<FlashCardsSetup> {
+                    FlashCardOptionsScreen(
+                        flashCardOptions,
+                        { navController.navigate(FlashCards) },
+                        { navController.navigate(Intro) }
+                    )
+                }
+                composable<FlashCards> {
+                    FlashCardsScreen(
+                        flashCardOptions,
+                        { navController.navigate(FlashCardsSetup) },
+                        { navController.navigate(Intro) }
+                    )
+                }
             }
         }
     }

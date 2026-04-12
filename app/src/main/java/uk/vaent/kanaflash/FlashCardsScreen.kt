@@ -1,6 +1,9 @@
 package uk.vaent.kanaflash
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -8,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -18,9 +22,10 @@ import uk.vaent.kanaflash.kana.Kana
 import uk.vaent.kanaflash.kana.Katakana
 
 @Composable
-fun KanaFlashCard(
+fun FlashCardsScreen(
     options: MutableState<FlashCardOptions>,
-    showOptions: () -> Unit
+    showOptions: () -> Unit,
+    showHomeScreen: () -> Unit
 ) {
     val (hiragana, katakana, sansSerif, serif, includeObsolete) = options.value
 
@@ -30,11 +35,25 @@ fun KanaFlashCard(
 
     val (currentKana, setCurrentKana) = remember { mutableStateOf(candidateKana.random()) }
 
-    Text(currentKana.value, fontSize = 60.em, fontFamily = fontFamily())
-    NextKanaButton(selectedKanaName, getNextKanaPicker(candidateKana, currentKana, setCurrentKana))
-    Row(Modifier.padding(20.dp)) {
-        Button(onClick = { showOptions() }) {
-            Text("Back to options")
+    Column(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(currentKana.value, fontSize = 60.em, fontFamily = fontFamily())
+        NextKanaButton(
+            selectedKanaName,
+            getNextKanaPicker(candidateKana, currentKana, setCurrentKana)
+        )
+        Row(Modifier.padding(20.dp)) {
+            Button(onClick = { showOptions() }) {
+                Text("Back to options")
+            }
+        }
+        Row(Modifier.padding(20.dp)) {
+            Button(onClick = { showHomeScreen() }) {
+                Text("Back to home screen")
+            }
         }
     }
 }

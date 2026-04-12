@@ -29,26 +29,15 @@ import uk.vaent.kanaflash.config.FlashCardOptions
 @Composable
 fun FlashCardOptionsScreen(
     flashCardOptions: MutableState<FlashCardOptions>,
+    showFlashCards: () -> Unit,
     showHomeScreen: () -> Unit
 ) {
-    val (playing, setPlaying) = remember { mutableStateOf(false) }
-
     Column(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (playing) {
-            KanaFlashCard(
-                flashCardOptions,
-                showOptions = { setPlaying(false) }
-            )
-        } else {
-            OptionsForm(
-                flashCardOptions,
-                startPlaying = { setPlaying(true) }
-            )
-        }
+        OptionsForm(flashCardOptions) { showFlashCards() }
         Row(horizontalArrangement = Arrangement.Center) {
             Button(onClick = { showHomeScreen() }) {
                 Text("Back to home screen")
