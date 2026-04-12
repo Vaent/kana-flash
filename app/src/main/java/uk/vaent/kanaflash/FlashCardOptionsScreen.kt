@@ -18,6 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import uk.vaent.kanaflash.config.FlashCardOptions
@@ -27,49 +29,75 @@ import kotlin.reflect.KProperty1
 
 @Composable
 fun FlashCardOptionsScreen(
-    flashCardOptions: MutableState<FlashCardOptions>,
+    options: MutableState<FlashCardOptions>,
     showFlashCards: () -> Unit,
     showHomeScreen: () -> Unit
 ) {
-    Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        OptionsForm(flashCardOptions) { showFlashCards() }
-        Row(horizontalArrangement = Arrangement.Center) {
-            Button(onClick = { showHomeScreen() }) {
-                Text("Back to home screen")
-            }
-        }
-    }
-}
-
-@Composable
-private fun OptionsForm(
-    options: MutableState<FlashCardOptions>,
-    startPlaying: () -> Unit
-) {
-    val (charsErrorText, setCharsErrorText) = remember { mutableStateOf("") }
-    val (fontErrorText, setFontErrorText) = remember { mutableStateOf("") }
+    val isCharsetValid = remember { mutableStateOf(true) }
+    val isStyleValid = remember { mutableStateOf(true) }
 
     fun getPropertySetter(property: KProperty1<FlashCardOptions, Boolean>): (Boolean) -> Unit = {
         options.value = options.value.replace(property, it)
     }
 
-    @Composable
-    fun OptionCheckboxes(title: String, vararg properties: KProperty1<FlashCardOptions, Boolean>) {
-        CheckboxGroup(options.value, title, *properties) { getPropertySetter(it) }
-    }
+    Column(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.height(120.dp))
 
+        TextOptions(options.value) { getPropertySetter(it) }
+        Spacer(Modifier.height(20.dp))
+        ObsoleteKanaOption(options.value) { getPropertySetter(it) }
+
+        StartPlayingButton(options, isCharsetValid, isStyleValid, showFlashCards)
+        PaddedButton("Back to home screen", showHomeScreen)
+        ErrorIfInvalid(isCharsetValid, "Select at least one character set")
+        ErrorIfInvalid(isStyleValid, "Select at least one style")
+    }
+}
+
+@Composable
+private fun TextOptions(
+    options: FlashCardOptions,
+    getPropertySetter: (KProperty1<FlashCardOptions, Boolean>) -> (Boolean) -> Unit
+) {
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        OptionCheckboxes("Character sets", FlashCardOptions::hiragana, FlashCardOptions::katakana)
-        OptionCheckboxes("Text styles", FlashCardOptions::printed, FlashCardOptions::calligraphic)
+        OptionCheckboxes(
+            options,
+            "Character sets",
+            FlashCardOptions::hiragana,
+            FlashCardOptions::katakana,
+            getPropertySetter = getPropertySetter
+        )
+        OptionCheckboxes(
+            options,
+            "Text styles",
+            FlashCardOptions::printed,
+            FlashCardOptions::calligraphic,
+            getPropertySetter = getPropertySetter
+        )
     }
-    Spacer(Modifier.height(20.dp))
+}
+
+@Composable
+fun OptionCheckboxes(
+    options: FlashCardOptions,
+    title: String,
+    vararg properties: KProperty1<FlashCardOptions, Boolean>,
+    getPropertySetter: (KProperty1<FlashCardOptions, Boolean>) -> (Boolean) -> Unit
+) {
+    CheckboxGroup(options, title, *properties) { getPropertySetter(it) }
+}
+
+@Composable
+private fun ObsoleteKanaOption(
+    options: FlashCardOptions,
+    getPropertySetter: (KProperty1<FlashCardOptions, Boolean>) -> (Boolean) -> Unit
+) {
     Row(
         Modifier
             .border(Dp.Hairline, MaterialTheme.colorScheme.onSurface)
@@ -78,29 +106,46 @@ private fun OptionsForm(
         horizontalArrangement = Arrangement.Center
     ) {
         YesNoRadio(
-            options.value,
+            options,
             FlashCardOptions::includeObsolete,
             "Include obsolete kana?",
             getPropertySetter(FlashCardOptions::includeObsolete)
         )
     }
+}
+
+@Composable
+private fun StartPlayingButton(
+    options: MutableState<FlashCardOptions>,
+    isCharsetValid: MutableState<Boolean>,
+    isStyleValid: MutableState<Boolean>,
+    showFlashCards: () -> Unit
+) {
+    PaddedButton("Start playing") {
+        isCharsetValid.value = options.value.hiragana || options.value.katakana
+        isStyleValid.value = options.value.printed || options.value.calligraphic
+        if (isCharsetValid.value && isStyleValid.value) showFlashCards()
+    }
+}
+
+@Composable
+private fun PaddedButton(label: String, onClick: () -> Unit) {
     Row(Modifier.padding(20.dp)) {
-        Button(
-            onClick = {
-                val isCharSelectionValid = options.value.hiragana || options.value.katakana
-                val isFontSelectionValid = options.value.printed || options.value.calligraphic
-                setCharsErrorText(if (isCharSelectionValid) "" else "Select at least one character set")
-                setFontErrorText(if (isFontSelectionValid) "" else "Select at least one style")
-                if (isCharSelectionValid && isFontSelectionValid) startPlaying()
-            },
-        ) {
-            Text("Start playing")
+        Button(onClick) {
+            Text(label)
         }
     }
-    Row(Modifier.padding(vertical = 20.dp)) {
-        Text(charsErrorText)
-    }
-    Row(Modifier.padding(vertical = 20.dp)) {
-        Text(fontErrorText)
+}
+
+@Composable
+private fun ErrorIfInvalid(validation: MutableState<Boolean>, text: String) {
+    if (!validation.value) {
+        Row(Modifier.padding(vertical = 20.dp)) {
+            Text(
+                text,
+                color = Color.Red,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
